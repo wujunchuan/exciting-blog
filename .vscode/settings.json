@@ -6,6 +6,9 @@
     // "editor.defaultFormatter": "astro-build.astro-vscode"
     "editor.defaultFormatter": "biomejs.biome"
   },
+  "[svelte]": {
+    "editor.formatOnSave": false,
+  },
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
