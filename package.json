@@ -7,7 +7,7 @@
     "start": "astro dev",
     "check": "astro check",
     "build": "astro build && pagefind --site dist",
-    "preview": "astro preview",
+    "preview": "npx serve ./dist",
     "astro": "astro",
     "type-check": "tsc --noEmit --isolatedDeclarations",
     "new-post": "node scripts/new-post.js",
