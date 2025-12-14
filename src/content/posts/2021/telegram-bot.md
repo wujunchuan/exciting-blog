@@ -6,7 +6,7 @@ image: 'https://storage.fuckwechat.com/maxresdefault_yyyy12Su_174346.jpg'
 tags: ['telegram', 'serverless']
 category: 技术分享
 draft: false
-lang: 'zh'
+lang: 'zh-CN'
 ---
 
 # Telegram 机器人

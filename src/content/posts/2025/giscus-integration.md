@@ -6,7 +6,7 @@ image: ''
 tags: [Astro, Giscus, 评论系统, GitHub Discussions, 博客优化]
 category: 技术分享
 draft: false
-lang: zh
+lang: "zh-CN"
 ---
 
 # Astro 博客集成 Giscus 评论系统完整指南

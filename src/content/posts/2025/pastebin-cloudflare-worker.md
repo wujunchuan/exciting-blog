@@ -6,7 +6,7 @@ image: 'https://storage.fuckwechat.com/G6CVGeZbMAE8fan_yyyy12Su_220226.jpeg'
 tags: ['cloudflare worker', 'serverless']
 category: '技术分享'
 draft: false
-lang: 'zh'
+lang: 'zh-CN'
 ---
 
 一直听说 CloudFlare 赛博活佛的大名，但之前没有使用需求。最近因业务需要尝试了这类 Serverless 服务，体验非常棒。

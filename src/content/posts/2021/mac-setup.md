@@ -6,7 +6,7 @@ image: 'https://storage.fuckwechat.com/apple_silicon_1493_yyyy12Su_171956.webp'
 tags: ['macOS']
 category: 技术分享
 draft: false
-lang: 'zh'
+lang: 'zh-CN'
 ---
 
 # 前言
