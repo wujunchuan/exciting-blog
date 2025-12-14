@@ -12,6 +12,47 @@ let result: SearchResult[] = [];
 let isSearching = false;
 let pagefindLoaded = false;
 let initialized = false;
+let desktopSearchInput: HTMLInputElement;
+let mobileSearchInput: HTMLInputElement;
+let selectedIndex = -1;
+let resultRefs: HTMLAnchorElement[] = [];
+
+const handleKeydown = (e: KeyboardEvent) => {
+	if (e.metaKey && e.key === 'k') {
+		e.preventDefault();
+		desktopSearchInput?.focus();
+	}
+};
+
+const handleResultClick = () => {
+	const panel = document.getElementById("search-panel");
+	panel?.classList.add("float-panel-closed");
+	result = [];
+	keywordDesktop = "";
+	keywordMobile = "";
+};
+
+const handleSearchInputKeydown = (e: KeyboardEvent) => {
+	if (result.length === 0) {
+		selectedIndex = -1;
+		return;
+	}
+
+	if (e.key === 'ArrowDown') {
+		e.preventDefault();
+		selectedIndex = (selectedIndex + 1) % result.length;
+		resultRefs[selectedIndex]?.scrollIntoView({ block: 'nearest' });
+	} else if (e.key === 'ArrowUp') {
+		e.preventDefault();
+		selectedIndex = (selectedIndex - 1 + result.length) % result.length;
+		resultRefs[selectedIndex]?.scrollIntoView({ block: 'nearest' });
+	} else if (e.key === 'Enter') {
+		e.preventDefault();
+		if (selectedIndex >= 0 && selectedIndex < resultRefs.length) {
+			resultRefs[selectedIndex]?.click();
+		}
+	}
+}
 
 const fakeResult: SearchResult[] = [
 	{
@@ -138,6 +179,8 @@ $: if (initialized && keywordMobile) {
 }
 </script>
 
+<svelte:body on:keydown={handleKeydown}></svelte:body>
+
 <!-- search bar for desktop view -->
 <div id="search-bar" class="hidden lg:flex transition-all items-center h-11 mr-2 rounded-lg
       bg-black/[0.04] hover:bg-black/[0.06] focus-within:bg-black/[0.06]
@@ -145,6 +188,8 @@ $: if (initialized && keywordMobile) {
 ">
     <Icon icon="material-symbols:search" class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-black/30 dark:text-white/30"></Icon>
     <input placeholder="{i18n(I18nKey.search)}" bind:value={keywordDesktop} on:focus={() => search(keywordDesktop, true)}
+					 on:keydown={handleSearchInputKeydown}
+					 bind:this={desktopSearchInput}
            class="transition-all pl-10 text-sm bg-transparent outline-0
          h-full w-40 active:w-60 focus:w-60 text-black/50 dark:text-white/50"
     >
@@ -167,14 +212,18 @@ top-20 left-4 md:left-[unset] right-4 shadow-2xl rounded-2xl p-2">
   ">
         <Icon icon="material-symbols:search" class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-black/30 dark:text-white/30"></Icon>
         <input placeholder="Search" bind:value={keywordMobile}
+							 on:keydown={handleSearchInputKeydown}
+							 bind:this={mobileSearchInput}
                class="pl-10 absolute inset-0 text-sm bg-transparent outline-0
                focus:w-60 text-black/50 dark:text-white/50"
         >
     </div>
 
     <!-- search results -->
-    {#each result as item}
-        <a href={item.url}
+    {#each result as item, i}
+        <a href={item.url} on:click={handleResultClick}
+					 bind:this={resultRefs[i]}
+					 class:selected={selectedIndex === i}
            class="transition first-of-type:mt-2 lg:first-of-type:mt-0 group block
        rounded-xl text-lg px-3 py-2 hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]">
             <div class="transition text-90 inline-flex font-bold group-hover:text-[var(--primary)]">
@@ -195,4 +244,7 @@ top-20 left-4 md:left-[unset] right-4 shadow-2xl rounded-2xl p-2">
     max-height: calc(100vh - 100px);
     overflow-y: auto;
   }
+	.selected {
+		background-color: var(--btn-plain-bg-hover);
+	}
 </style>
