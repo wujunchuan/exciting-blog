@@ -1,5 +1,6 @@
 import type {
 	ExpressiveCodeConfig,
+	GiscusConfig,
 	LicenseConfig,
 	NavBarConfig,
 	ProfileConfig,
@@ -22,7 +23,7 @@ export const siteConfig: SiteConfig = {
 		credit: {
 			enable: false, // Display the credit text of the banner image
 			text: "", // Credit text to be displayed
-			url: "", // (Optional) URL låink to the original artwork or artist's page
+			url: "", // (Optional) URL link to the original artwork or artist's page
 		},
 	},
 	toc: {
@@ -37,6 +38,20 @@ export const siteConfig: SiteConfig = {
 		//   sizes: '32x32',              // (Optional) Size of the favicon, set only if you have favicons of different sizes
 		// }
 	],
+};
+
+// Giscus配置
+export const giscusConfig: GiscusConfig = {
+	repo: "wujunchuan/exciting-blog", // 替换为您的GitHub仓库
+	repoId: "R_kgDOQob2AA", // 从Giscus app获取
+	category: "Announcements", // GitHub Discussions分类
+	categoryId: "DIC_kwDOQob2AM4CzxNk", // 从Giscus app获取
+	mapping: "pathname",
+	reactionsEnabled: "1",
+	emitMetadata: "0",
+	inputPosition: "top",
+	lang: "en",
+	loading: "lazy",
 };
 
 export const navBarConfig: NavBarConfig = {

@@ -116,10 +116,10 @@ const bannerOffset =
 			switch (theme) {
 				case LIGHT_MODE:
 					document.documentElement.classList.remove('dark');
-					break
+					break;
 				case DARK_MODE:
 					document.documentElement.classList.add('dark');
-					break
+					break;
 				case AUTO_MODE:
 					if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
 						document.documentElement.classList.add('dark');
@@ -558,6 +558,16 @@ const setup = () => {
 		{ before: true },
 	)
 }
+
+// 劫持 localStorage.setItem 方法，以便在主题变化时触发自定义事件
+const originalSetItem = localStorage.setItem;
+localStorage.setItem = function(key, value) {
+	originalSetItem.apply(this, [key, value]);
+	// 如果是主题发生变化，触发自定义事件
+	if (key === 'theme') {
+		window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: value } }));
+	}
+};
 
 if (window.swup) {
 	setup()

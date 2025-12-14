@@ -1,0 +1,142 @@
+---
+// src/components/GiscusComment.astro
+
+const {
+	repo,
+	repoId,
+	category,
+	categoryId,
+	mapping = "pathname",
+	term,
+	theme = "light",
+	strict = "0",
+	reactionsEnabled = "1",
+	emitMetadata = "0",
+	inputPosition = "top",
+	lang = "en",
+	loading = "lazy",
+} = Astro.props;
+---
+
+<script is:inline>
+  // 获取Giscus主题
+  function getGiscusTheme() {
+    const storedTheme = localStorage.getItem("theme") || "auto";
+    // 检查是否为暗色模式
+    const isDark =
+      storedTheme === "dark" ||
+      storedTheme === "github-dark" ||
+      (storedTheme === "preferred_color_scheme" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches) ||
+      (storedTheme === "auto" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+    return isDark ? "dark_dimmed" : "light";
+  }
+
+  // 更新Giscus主题
+  async function updateGiscusTheme() {
+    // 等待一点时间确保localStorage已更新
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const giscusTheme = getGiscusTheme();
+    const iframe = document.querySelector("iframe.giscus-frame");
+    if (iframe) {
+      // 通过postMessage发送主题更新消息
+      iframe.contentWindow.postMessage(
+        {
+          giscus: {
+            setConfig: {
+              theme: giscusTheme,
+            },
+          },
+        },
+        "https://giscus.app"
+      );
+    }
+  }
+
+  // 监听DOM变化，当Giscus加载后更新主题
+  const observer = new MutationObserver(function (mutations) {
+    for (const mutation of mutations) {
+      for (const node of mutation.addedNodes) {
+        if (
+          node.nodeType === 1 &&
+          node.tagName === "IFRAME" &&
+          node.classList.contains("giscus-frame")
+        ) {
+          // iframe已添加，等待一段时间后更新主题
+          setTimeout(updateGiscusTheme, 300);
+          break;
+        }
+      }
+    }
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  // 页面加载完成后尝试更新一次
+  window.addEventListener("load", () => {
+    setTimeout(updateGiscusTheme, 500);
+  });
+
+  // 监听主题变化 - 监听storage事件
+  window.addEventListener("storage", function (e) {
+    if (e.key === "theme") {
+      // 当主题在其他标签页中更改时，延迟更新 Giscus 主题
+      setTimeout(updateGiscusTheme, 100);
+    }
+  });
+
+  // 页面可见性变化时也检查主题（例如标签页切换回来）
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) {
+      setTimeout(updateGiscusTheme, 300);
+    }
+  });
+
+  // 监听主题变化 - 通过自定义事件方式
+  // 这种方式在单个页面内的主题切换更可靠
+  window.addEventListener("themeChange", function () {
+    updateGiscusTheme();
+  });
+
+  // 监听主题变化 - 通过轮询检查
+  // 作为备用方案，以防storage事件未能正确触发
+  let lastTheme = localStorage.getItem("theme") || "auto";
+  setInterval(function () {
+    const currentTheme = localStorage.getItem("theme") || "auto";
+    if (currentTheme !== lastTheme) {
+      lastTheme = currentTheme;
+      updateGiscusTheme();
+    }
+  }, 500); // 每500毫秒检查一次主题变化
+
+  // 添加一个全局函数，以便其他脚本可以调用
+  window.updateGiscusTheme = updateGiscusTheme;
+</script>
+
+<script
+  src="https://giscus.app/client.js"
+  data-repo={repo}
+  data-repo-id={repoId}
+  data-category={category}
+  data-category-id={categoryId}
+  data-mapping={mapping}
+  data-strict={strict}
+  data-theme="light"
+  data-reactions-enabled={reactionsEnabled}
+  data-emit-metadata={emitMetadata}
+  data-input-position={inputPosition}
+  data-lang={lang}
+  data-loading={loading}
+  crossorigin="anonymous"
+  async></script>
+
+<style>
+  :global(.giscus-frame) {
+    width: 100%;
+    border: none;
+    min-height: 200px;
+  }
+</style>

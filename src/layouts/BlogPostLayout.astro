@@ -1,0 +1,183 @@
+---
+// src/layouts/BlogPostLayout.astro
+import BackToTop from "@components/control/BackToTop.astro";
+import Footer from "@components/Footer.astro";
+import GiscusComment from "@components/GiscusComment.astro";
+import Navbar from "@components/Navbar.astro";
+import SideBar from "@components/widget/SideBar.astro";
+import type { MarkdownHeading } from "astro";
+import { Icon } from "astro-icon/components";
+import ImageWrapper from "../components/misc/ImageWrapper.astro";
+import TOC from "../components/widget/TOC.astro";
+import { siteConfig } from "../config";
+import {
+	BANNER_HEIGHT,
+	BANNER_HEIGHT_EXTEND,
+	DEFAULT_THEME,
+	MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
+} from "../constants/constants";
+import Layout from "./Layout.astro";
+
+interface Props {
+	title?: string;
+	banner?: string;
+	description?: string;
+	lang?: string;
+	setOGTypeArticle?: boolean;
+	headings?: MarkdownHeading[];
+	enableComments?: boolean;
+	giscusConfig?: {
+		repo: string;
+		repoId: string;
+		category: string;
+		categoryId: string;
+		mapping?: string;
+		term?: string;
+		theme?: string;
+		strict?: string;
+		reactionsEnabled?: string;
+		emitMetadata?: string;
+		inputPosition?: string;
+		lang?: string;
+		loading?: string;
+	};
+}
+
+const {
+	title,
+	banner,
+	description,
+	lang,
+	setOGTypeArticle,
+	headings = [],
+	enableComments = true, // 默认启用评论
+	giscusConfig,
+} = Astro.props;
+
+const hasBannerCredit =
+	siteConfig.banner.enable && siteConfig.banner.credit.enable;
+const hasBannerLink = !!siteConfig.banner.credit.url;
+
+const mainPanelTop = siteConfig.banner.enable
+	? `calc(${BANNER_HEIGHT}vh - ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem)`
+	: "5.5rem";
+
+// 当前主题将在客户端确定
+// 注意：服务端无法直接访问localStorage中的主题值
+// 因此我们可以传递默认值，实际主题将在客户端应用
+const currentTheme = DEFAULT_THEME; // 实际的主题将在客户端由JS设置
+---
+
+<Layout title={title} banner={banner} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle}>
+
+    <!-- Navbar -->
+    <slot slot="head" name="head"></slot>
+
+    <!-- 添加脚本以获取当前主题 -->
+    <script is:inline>
+      // 获取当前主题
+      const currentTheme = localStorage.getItem('theme') || 'auto';
+      // 可以在这里对当前主题进行操作
+      console.log('Current theme:', currentTheme);
+    </script>
+
+    <div id="top-row" class="z-50 pointer-events-none relative transition-all duration-700 max-w-[var(--page-width)] px-0 md:px-4 mx-auto" class:list={[""]}>
+        <div id="navbar-wrapper" class="pointer-events-auto sticky top-0 transition-all">
+            <Navbar></Navbar>
+        </div>
+    </div>
+
+    <!-- Banner -->
+    {siteConfig.banner.enable && <div id="banner-wrapper" class={`absolute z-10 w-full transition duration-700 overflow-hidden`} style={`top: -${BANNER_HEIGHT_EXTEND}vh`}>
+        <ImageWrapper id="banner" alt="Banner image of the blog" class:list={["object-cover h-full transition duration-700 opacity-0 scale-105"]}
+                      src={siteConfig.banner.src} position={siteConfig.banner.position}
+        >
+        </ImageWrapper>
+    </div>}
+
+    <!-- Main content -->
+    <div class="absolute w-full z-30 pointer-events-none" style={`top: ${mainPanelTop}`}>
+        <!-- The pointer-events-none here prevent blocking the click event of the TOC -->
+        <div class="relative max-w-[var(--page-width)] mx-auto pointer-events-auto">
+            <div id="main-grid" class="transition duration-700 w-full left-0 right-0 grid grid-cols-[17.5rem_auto] grid-rows-[auto_1fr_auto] lg:grid-rows-[auto]
+        mx-auto gap-4 px-0 md:px-4"
+            >
+                <!-- Banner image credit -->
+                {hasBannerCredit && <a href={siteConfig.banner.credit.url} id="banner-credit" target="_blank" rel="noopener" aria-label="Visit image source"
+                                       class:list={["group onload-animation transition-all absolute flex justify-center items-center rounded-full " +
+                                       "px-3 right-4 -top-[3.25rem] bg-black/60 hover:bg-black/70 h-9", {"hover:pr-9 active:bg-black/80": hasBannerLink}]}
+                >
+                    <Icon class="text-white/75 text-[1.25rem] mr-1" name="material-symbols:copyright-outline-rounded" ></Icon>
+                    <div class="text-white/75 text-xs">{siteConfig.banner.credit.text}</div>
+                    <Icon class:list={["transition absolute text-[oklch(0.75_0.14_var(--hue))] right-4 text-[0.75rem] opacity-0",
+                        {"group-hover:opacity-100": hasBannerLink}]}
+                          name="fa6-solid:arrow-up-right-from-square">
+                    </Icon>
+                </a>}
+
+
+                <SideBar class="mb-4 row-start-2 row-end-3 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings}></SideBar>
+
+                <main id="swup-container" class="transition-swup-fade col-span-2 lg:col-span-1 overflow-hidden">
+                    <div id="content-wrapper" class="onload-animation">
+                        <!-- the overflow-hidden here prevent long text break the layout-->
+                        <!-- make id different from windows.swup global property -->
+                        <slot></slot>
+                        
+                        <!-- Giscus评论系统 -->
+                        {enableComments && giscusConfig && (
+                            <div class="card-base my-4">
+                                <div class="px-6 pb-6 pt-4">    
+                                    <div class="text-lg font-semibold mb-4">Comments</div>
+                                    <GiscusComment
+                                        repo={giscusConfig.repo}
+                                        repoId={giscusConfig.repoId}
+                                        category={giscusConfig.category}
+                                        categoryId={giscusConfig.categoryId}
+                                        mapping={giscusConfig.mapping || 'pathname'}
+                                        reactionsEnabled={giscusConfig.reactionsEnabled || '1'}
+                                        emitMetadata={giscusConfig.emitMetadata || '0'}
+                                        inputPosition={giscusConfig.inputPosition || 'top'}
+                                        lang={giscusConfig.lang || 'en'}
+                                        loading={giscusConfig.loading || 'lazy'}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                        
+                        <div class="footer col-span-2 onload-animation hidden lg:block">
+                            <Footer></Footer>
+                        </div>
+                    </div>
+                </main>
+
+                <div class="footer col-span-2 onload-animation block lg:hidden">
+                    <Footer></Footer>
+                </div>
+            </div>
+
+            <BackToTop></BackToTop>
+        </div>
+    </div>
+
+    <!-- The things that should be under the banner, only the TOC for now -->
+    <div class="absolute w-full z-0 hidden 2xl:block">
+        <div class="relative max-w-[var(--page-width)] mx-auto">
+            <!-- TOC component -->
+            {siteConfig.toc.enable && <div id="toc-wrapper" class:list={["hidden lg:block transition absolute top-0 -right-[var(--toc-width)] w-[var(--toc-width)] items-center",
+                {"toc-hide": siteConfig.banner.enable}]}
+            >
+                <div id="toc-inner-wrapper" class="fixed top-14 w-[var(--toc-width)] h-[calc(100vh_-_20rem)] overflow-y-scroll overflow-x-hidden hide-scrollbar">
+                    <div id="toc" class="w-full h-full transition-swup-fade ">
+                        <div class="h-8 w-full"></div>
+                        <TOC headings={headings}></TOC>
+                        <div class="h-8 w-full"></div>
+                    </div>
+                </div>
+            </div>}
+
+            <!-- #toc needs to exist for Swup to work normally -->
+            {!siteConfig.toc.enable && <div id="toc"></div>}
+        </div>
+    </div>
+</Layout>

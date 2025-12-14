@@ -38,6 +38,32 @@ export type SiteConfig = {
 	favicon: Favicon[];
 };
 
+// Giscus 配置类型
+export type GiscusConfig = {
+	// GitHub仓库，格式为 username/repo
+	repo: string;
+	// 仓库ID，从Giscus app获取
+	repoId: string;
+	// GitHub Discussions分类名称
+	category: string;
+	// 分类ID，从Giscus app获取
+	categoryId: string;
+	// 映射方式，默认为 'pathname'
+	mapping?: string;
+	// 主题，默认为 'light'
+	theme?: string;
+	// 是否启用反应，默认为 '1'
+	reactionsEnabled?: string;
+	// 是否发送元数据，默认为 '0'
+	emitMetadata?: string;
+	// 输入框位置，默认为 'top'
+	inputPosition?: string;
+	// 语言，默认为 'en'
+	lang?: string;
+	// 加载方式，默认为 'lazy'
+	loading?: string;
+};
+
 export type Favicon = {
 	src: string;
 	theme?: "light" | "dark";
