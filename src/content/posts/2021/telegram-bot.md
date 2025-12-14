@@ -4,7 +4,7 @@ published: 2021-07-17
 description: '注册 Telegram 机器人并部署到 Vercel'
 image: 'https://storage.fuckwechat.com/maxresdefault_yyyy12Su_174346.jpg'
 tags: ['telegram', 'serverless']
-category: 'serverless'
+category: 技术分享
 draft: false
 lang: 'zh'
 ---

@@ -4,7 +4,7 @@ published: 2021-02-04
 description: '新电脑环境配置过程记录，Apple silicon YES!'
 image: 'https://storage.fuckwechat.com/apple_silicon_1493_yyyy12Su_171956.webp'
 tags: ['macOS']
-category: '开发环境'
+category: 技术分享
 draft: false
 lang: 'zh'
 ---
