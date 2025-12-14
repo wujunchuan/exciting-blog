@@ -22,5 +22,8 @@
     "source.fixAll.biome": "explicit"
   },
   "frontMatter.dashboard.openOnStart": false,
-  "cSpell.words": ["giscus"]
+  "cSpell.words": [
+    "giscus",
+    "pastebin"
+  ]
 }
